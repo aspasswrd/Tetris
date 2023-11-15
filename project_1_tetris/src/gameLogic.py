@@ -1,7 +1,7 @@
-from settings import *
 from copy import deepcopy
 from random import choice
-from pygame import *
+
+from src.settings import *
 
 
 class Tetris:
@@ -11,11 +11,12 @@ class Tetris:
         self.next_figure = deepcopy(choice(figures))
         self.color = choice(self.images)
         self.next_color = choice(self.images)
-
-        self.current_time = time.get_ticks()
+        self.current_time = pg.time.get_ticks()
         self.can_be_rotated = True
+
         if self.figure == figures[1]:
             self.can_be_rotated = False
+
         self.logic = logic
 
     def check_borders(self, i):
@@ -29,11 +30,13 @@ class Tetris:
         figure_old = deepcopy(self.figure)
         for i in range(4):
             self.figure[i].y += 1
+
             if not self.check_borders(i):
                 self.figure = deepcopy(figure_old)
                 for j in range(4):
                     self.logic.cup[figure_old[j].y][figure_old[j].x] = self.color
                 self.figure, self.color = self.next_figure, self.next_color
+
                 if self.figure == figures[1]:
                     self.can_be_rotated = False
                 else:
@@ -49,23 +52,27 @@ class Tetris:
             y = self.figure[i].x - center.x
             self.figure[i].x = center.x - x
             self.figure[i].y = center.y + y
+
             if not self.check_borders(i):
                 self.figure = deepcopy(figure_old)
                 break
 
     def update(self):
         self.move_x()
+
         if self.logic.rotate and self.can_be_rotated:
             self.rotate_figure()
             self.logic.rotate = False
-        if time.get_ticks() > self.current_time + INTERVAL - 10 * self.logic.speed:
-            self.current_time = time.get_ticks()
+
+        if pg.time.get_ticks() > self.current_time + INTERVAL - 10 * self.logic.speed:
+            self.current_time = pg.time.get_ticks()
             self.move_y()
 
     def move_x(self):
         figure_old = deepcopy(self.figure)
         for i in range(4):
             self.figure[i].x += self.logic.dx
+
             if not self.check_borders(i):
                 self.figure = deepcopy(figure_old)
                 break
@@ -98,11 +105,11 @@ class GameLogic:
         self.score = 0
 
     def control(self, pressed_key):
-        if pressed_key == K_LEFT:
+        if pressed_key == pg.K_LEFT:
             self.dx = -1
-        elif pressed_key == K_RIGHT:
+        elif pressed_key == pg.K_RIGHT:
             self.dx = 1
-        elif pressed_key == K_UP:
+        elif pressed_key == pg.K_UP:
             self.rotate = True
 
     def check_lines(self):
@@ -113,6 +120,7 @@ class GameLogic:
                 if self.cup[row][i]:
                     count += 1
                 self.cup[line][i] = self.cup[row][i]
+
             if count < FIELD_W:
                 line -= 1
             else:
